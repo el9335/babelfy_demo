@@ -1,0 +1,103 @@
+ Babelfy/Babelnet Client with O*NET
+ Author: Emily C. LeBlanc
+
+ 
+Files:
+------
+1. ‘babel-disamb.py' takes a mode flags, input flags, and a sentence/paragraph/novel (novel possible but not recommended) as an argument.  It disambiguates the text, and returns synsets for text fragments.  The synset id is not sufficient to  interpret the results, so the script then calls 'babel-info.py' (described next) to get the meanings.
+
+2. ‘babel-info.py’ takes a synset and a mode flag obtained from ‘babel-disamb.py’. The script gets the human interpretable information from the synsets returned by Babelfy.  The output for each synset is the name and description (where available) from babel net.
+
+3. ‘onet.py’, Jim’s script with a modification to show how to use the generated dictionaries with the babel scripts. 
+
+
+O*NET:
+------
+
+ At line 148 in ‘onet.py’, I’ve added additional logic to show how to run O*NET results through 
+ the Babel script:
+
+ for key in sorted(dicttask)[:3]:
+                run = 'python babelDisamb.py -a -all "' + str(dicttask[key]) + '"'
+                #print str(dicttask[key])
+                #print run
+                os.system(run)
+
+ **IMPORTANT: Only 1000 requests may be made per day per key (see Service URLs below).  
+
+ The important part is building and running the command in the loop.  
+
+Babelfy/Babelnet:
+-----------------
+
+ Usage:
+ ------
+ 	$ python babel-disamb.py <mode flag> <info flag> <optional text>
+
+ Mode Flags:
+ -----------
+ -s run in a shell-like mode, you will be repeatedly prompted for an input text.
+ 
+ 	ex. $ python babel-disamb.py -s <info flag>
+
+ -a run with with text to be disambiguated as an argument.
+
+ 	ex. $ python babel-disamb.py -a <info flag> "Die Hard is a good movie."
+
+ Info Flags:
+ ----------
+ -top Return only top scored synset id.  
+ 
+   ex. $ python babel-disamb.py -s -top
+
+ -all Return a larger set of synsets id for each text fragment.
+
+    ex. $ python babel-disamb.py -a -all <text to be disambiguated>
+
+
+ Service URLs
+ ------------
+
+ Please refer to the following HTTP API reference to customize the results from Babelfy/Babelnet:
+
+ http://babelfy.org/guide (modify ‘babelDisamb.py’)
+ http://babelnet.org/guide (modify ‘babelInfo.py’)
+
+ The list 'params' (shown below) in both files can be modified based on the table of Parameters
+ from the above references.  It modifies the service URL used to send/receive info
+ to/from Babelfy.  An example of the service URL with text/word, lang and key parameters
+ is as follows (first Babelfy, then Babelnet):
+
+ https://babelfy.io/v1/disambiguate?text={Die Hard is a good movie.}&lang={EN}&key={key}
+ https://babelnet.io/v1/getSynsetIds?word={word}&lang={lang}&key={key}
+
+ **NOTE: The key is included in both 'babelDisamb.py' and 'babelInfo.py' and there is 
+ a limit of 1000 requests per day.  You can request a new key by clicking on the given
+ link on the HTTP API reference given above.   
+ 
+ In ‘babel-Disamb.py':
+
+        lang = 'EN'
+        match = 'PARTIAL_MATCHING'
+        key = 'c4acd5cc-8451-4a6c-b667-e376546f4866'
+
+        params = {
+                'text'  : text,
+                'lang'  : lang,
+                'match' : match,
+                'key'   : key
+        }
+
+ In ‘babel-Info.py’:
+
+        lang = 'EN'
+        match = 'PARTIAL_MATCHING' 
+        key = 'c4acd5cc-8451-4a6c-b667-e376546f4866'
+
+        params = {
+                'text'  : text,
+                'lang'  : lang,
+                'match' : match,
+                'key'   : key
+        }
+
